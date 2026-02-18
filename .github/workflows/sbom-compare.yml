@@ -28,7 +28,9 @@ jobs:
         run: |
           npm install -g @cyclonedx/cdxgen
           npm install json-diff
-          brew install cyclonedx/cyclonedx/cyclonedx-cli
+          #brew install cyclonedx/cyclonedx/cyclonedx-cli
+          wget https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.30.0/cyclonedx-linux-x64
+          chmod 777 cyclonedx-linux-x64
 
       - name: Generate Current SBOM
         id: current-sbom
