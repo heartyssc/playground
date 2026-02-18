@@ -51,7 +51,7 @@ jobs:
         run: |
           TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S %Z")
           # COMPARISON_RESULT=$(node compare-sboms.js ${{ steps.current-sbom.outputs.current_sbom }} ${{ steps.previous-sbom.outputs.previous_sbom }})
-          COMPARISON_RESULT=$(cyclonedx diff ${{ steps.current-sbom.outputs.current_sbom }} ${{ steps.previous-sbom.outputs.previous_sbom }})
+          COMPARISON_RESULT=$(cyclonedx-linux-x64 diff ${{ steps.current-sbom.outputs.current_sbom }} ${{ steps.previous-sbom.outputs.previous_sbom }})
           echo "### SBOM Comparison Report - $TIMESTAMP" >> sbom-comparison-history.md
           echo "$COMPARISON_RESULT" >> sbom-comparison-history.md
           echo "" >> sbom-comparison-history.md  # Add a newline for separation
