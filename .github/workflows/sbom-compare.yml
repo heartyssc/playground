@@ -53,7 +53,6 @@ jobs:
         id: compare-sboms
         run: |
           TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S %Z")
-          # COMPARISON_RESULT=$(node compare-sboms.js ${{ steps.current-sbom.outputs.current_sbom }} ${{ steps.previous-sbom.outputs.previous_sbom }})
           COMPARISON_RESULT=$(./cyclonedx-linux-x64 diff ${{ steps.current-sbom.outputs.current_sbom }} ${{ steps.previous-sbom.outputs.previous_sbom }})
           echo "### SBOM Comparison Report - $TIMESTAMP" >> sbom-comparison-history.md
           echo "$COMPARISON_RESULT" >> sbom-comparison-history.md
@@ -63,6 +62,8 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
+          git add sbom-current.json
+          git add sbom-previous.json
           git add sbom-comparison-history.md
           git commit -m "Update SBOM comparison history [$(date +'%Y-%m-%d %H:%M:%S %Z')]" || echo "No changes to commit"
           git push
