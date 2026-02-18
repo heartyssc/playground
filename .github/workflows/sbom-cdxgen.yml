@@ -40,7 +40,8 @@ jobs:
           python-version: '3.x'
       
       - name: Install cdxgen
-        run: pip install cdxgen
+        run: npm install -g @cyclonedx/cdxgen   
+        # old # pip install cdxgen
 
       # --- Step 3: Generate New SBOM ---
       - name: Generate New SBOM
