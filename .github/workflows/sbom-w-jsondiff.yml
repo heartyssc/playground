@@ -1,0 +1,61 @@
+name: SBOM Compare
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  sbom-compare:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Fetch the previous commit for comparison
+          ref: ${{ github.head_ref }}  # For PRs, checkout the head branch
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        run: |
+          npm install -g @cyclonedx/cdxgen
+          npm install json-diff
+
+      - name: Generate Current SBOM
+        id: current-sbom
+        run: |
+          cdxgen -o sbom-current.json
+          echo "current_sbom=sbom-current.json" >> $GITHUB_OUTPUT
+
+      - name: Generate Previous SBOM
+        id: previous-sbom
+        run: |
+          git checkout HEAD^
+          cdxgen -o sbom-previous.json
+          echo "previous_sbom=sbom-previous.json" >> $GITHUB_OUTPUT
+          git checkout -
+
+      - name: Compare SBOMs
+        id: compare-sboms
+        run: |
+          TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S %Z")
+          COMPARISON_RESULT=$(node compare-sboms.js ${{ steps.current-sbom.outputs.current_sbom }} ${{ steps.previous-sbom.outputs.previous_sbom }})
+          echo "### SBOM Comparison Report - $TIMESTAMP" >> sbom-comparison-history.md
+          echo "$COMPARISON_RESULT" >> sbom-comparison-history.md
+          echo "" >> sbom-comparison-history.md  # Add a newline for separation
+
+      - name: Commit and Push Comparison History
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add sbom-comparison-history.md
+          git commit -m "Update SBOM comparison history [$(date +'%Y-%m-%d %H:%M:%S %Z')]" || echo "No changes to commit"
+          git push
