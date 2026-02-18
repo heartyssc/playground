@@ -58,10 +58,17 @@ jobs:
           echo "$COMPARISON_RESULT" >> sbom/sbom-comparison-history.md
           echo "" >> sbom/sbom-comparison-history.md  # Add a newline for separation
 
+
+      - name: Create CSVs
+        id: convert-sboms
+        run: |
+          ./cyclonedx-linux-x64 convert --input-file sbom/sbom-current.json --output-file sbom/sbom-current.csv
+
       - name: Commit and Push Comparison History
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
+          git add sbom/sbom-current.csv
           git add sbom/sbom-current.json
           git add sbom/sbom-previous.json
           git add sbom/sbom-comparison-history.md
